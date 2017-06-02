@@ -14,20 +14,15 @@ var connection = mysql.createConnection({
     database: "Bamazon"
 });
 
-// connect to the mysql server and sql database
 connection.connect(function(err) {
     if (err) throw err;
     // console.log("connected as id " + connection.threadId);
 });
 
-
-// GLOBAL VARIABLE USED TO CARRY CURRENT SELECTED ID FOR QUERIES
 var primaryKey;
 
-//connection query select all from table auctions
 connection.query("SELECT * FROM auctions", function(err, res) {
 
-    //display function
     displayItems(res)
 });
 
@@ -38,7 +33,6 @@ function displayItems(array) {
         var item = "THE PRODUCT ID: " + array[i].id + "\n" + "THE PRODUCT NAME: " + array[i].product_name;
         //display item
         console.log(item);
-        //break
         console.log("------------------------")
     }
     //start function
@@ -46,13 +40,14 @@ function displayItems(array) {
 }
 
 var start = function() {
-    //inquirer question with input
+  
     var question = {
         type: 'input',
         name: 'id',
         message: 'What\'s the ID of the product that you would like to buy?'
     };
-    //first prompt user to select from display by ID
+    
+
     inquirer.prompt(question).then(function(answer) {
         console.log("-------------------------")
         console.log("ITEM ID SELECTED: ")
@@ -60,13 +55,10 @@ var start = function() {
         // ASSIGN A VALUE TO primaryKey
         primaryKey = answer.id
 
-        //variable to query all from auction table WHERE user answer, use let for block line
         let query = "SELECT * FROM auctions WHERE ID=" + primaryKey;
 
         //connect to table auction query only WHERE by primary key
         connection.query(query, function(err, res) {
-
-            // console.log(res[0]);
             console.log("------------------------")
             console.log("NAME OF PRODUCT: ");
             console.log(res[0].product_name);
@@ -99,46 +91,26 @@ var start = function() {
 //write update stock quantity function
 function updateStockQuantity(stock_quantity) {
 
-    // 1.  GET CURRENT STOCK
-    // 2.  COMPARE CURRENT STOCK AGAINST REQUESTED STOCK
-    // 3.  IF THERE IS ENOUGH STOCK UPDATE THE STOCK QUANTITY FOR THE TRANSACTION, ELSE TELL USER THERE ISN'T ENOUGH
-
-    // USE VALUE OF CURRENT SELECTED ID TO MAKE THE APPROPRIATE QUERY
     var currentStock;
 
     var updatedStock;
 
     let queryForQuantity = "SELECT * FROM auctions WHERE ID=" + primaryKey;
-    // console.log(queryForQuantity)
-
-
     connection.query(queryForQuantity, function(err, res) {
         console.log("------------------------")
-
         console.log("CURRENT STOCK: " + res[0].stock_quantity);
         console.log("------------------------")
-
         console.log("PRICE PER UNIT: " + "$" + res[0].price);
         var totalPrice = res[0].price * stock_quantity
-
-
         currentStock = parseInt(res[0].stock_quantity)
-
-
-        // console.log(currentStock)
         updatedStock = currentStock - parseInt(stock_quantity);
 
-
-
         if (updatedStock >= 0) {
-
             console.log("------------------------")
             console.log("THIS IS THE STORES UPDATED INVENTORY: " + updatedStock)
-
             console.log("------------------------")
             console.log("THE TOTAL PRICE IS: " + "$" + totalPrice);
             let queryForUpdate = "UPDATE auctions SET STOCK_QUANTITY=" + updatedStock + " WHERE ID=" + primaryKey
-
             //connection to query for update using var and MYSQL to update and primaryKey
             connection.query(queryForUpdate, function(err, res) {
 
@@ -152,4 +124,4 @@ function updateStockQuantity(stock_quantity) {
 
 }
 
-// start()
+
